@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Great Talk Title!</title>
+    <meta name="description" content="Possibly the most insightful presentation of all time" />
+
+    <link rel="stylesheet" href="decky.css">
+    <link rel="stylesheet" href="solarized-dark.css">
+    <script src="highlight.min.js"></script>
+  </head>
+  <body>
+
+    <section>
+      <h1>
+        Great Talk Title!
+      </h1>
+      <h2>decent subtitle</h2>
+    </section>
+
+    <section>
+      <img src="img/moz-logo.svg" style="max-width: 80vw;">
+    </section>
+
+    <section>
+      <h2 style="margin-bottom: 2rem;">Thanks!</h2>
+      <a href="https://twitter.com/potch">@potch</a>
+      <a href="https://example.com/">Examples</a>
+    </section>
+
+    <footer>
+      <div class="progress talk-progress"></div>
+      <div class="progress time-progress"></div>
+    </footer>
+    <script src="decky.js"></script>
+    <script>
+
+      var els = document.querySelectorAll('code[data-src]');
+      Array.from(els).forEach(function (el) {
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", function () {
+          el.innerHTML = this.responseText.replace('<', '&lt;', 'g');
+          hljs.highlightBlock(el);
+        });
+        xhr.open("GET", el.getAttribute('data-src'));
+        xhr.send();
+      });
+
+      var iframes = document.querySelectorAll('iframe');
+      iframes = Array.from(iframes);
+      iframes.forEach(function (i) {
+        var src = i.src;
+        i.setAttribute('data-src', src);
+        i.src = '';
+      });
+
+      var talkProgress = document.querySelector('.talk-progress');
+      var timeProgress = document.querySelector('.time-progress');
+      var sTime;
+      var timer;
+      var going = false;
+      decky.onSlideChange = function (n) {
+        if (n > 1 && !going) {
+          going = true;
+          timer = setInterval(update, 100);
+          sTime = Date.now();
+          console.log('starting timer');
+        }
+
+        var pct = n / decky.num * 100;
+        talkProgress.style.transform = 'translate(' + pct + '%, 0)';
+
+        iframes.forEach(function (i) {
+          i.src = '';
+        });
+
+        var f = document.querySelector('.active iframe');
+        if (f && window.top === window) {
+          f.src = f.getAttribute('data-src');
+        }
+      };
+      function update() {
+        var time = Math.min(100, ((Date.now() - sTime) / (20 * 60 * 1000)) * 100);
+        timeProgress.style.transform = 'translate(' + time + '%, 0)';
+      }
+    </script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
